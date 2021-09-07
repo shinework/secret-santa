@@ -31,11 +31,16 @@ class MessageSender
         $fallbackText = '';
         $blocks = [];
 
+        $schedule = $secretSanta->getOptions()['scheduled_at'] ?? null;
+
         if ($isSample) {
             $blocks[] = [
                 'type' => 'context',
                 'elements' => [
-                    ['type' => 'mrkdwn', 'text' => '_Find below a *sample* of the message that will be sent to all participants of your Secret Santa._'],
+                    [
+                        'type' => 'mrkdwn',
+                        'text' => '_Find below a *sample* of the message that will be sent to all participants of your Secret Santa._',
+                    ],
                 ],
             ];
 
@@ -140,13 +145,20 @@ class MessageSender
             ],
         ];
 
+        $messageParameters = [
+            'channel' => $giver,
+            'text' => $fallbackText,
+            'blocks' => json_encode($blocks),
+        ];
+
         try {
-            $response = $this->clientFactory->getClientForToken($token)->chatPostMessage([
-                'channel' => $giver,
-                'icon_url' => 'https://secret-santa.team/images/logo.png',
-                'text' => $fallbackText,
-                'blocks' => json_encode($blocks),
-            ]);
+            if ($schedule && !$isSample) {
+                $messageParameters['post_at'] = $schedule;
+                $response = $this->clientFactory->getClientForToken($token)->chatScheduleMessage($messageParameters);
+            } else {
+                $messageParameters['icon_url'] = 'https://secret-santa.team/images/logo.png';
+                $response = $this->clientFactory->getClientForToken($token)->chatPostMessage($messageParameters);
+            }
 
             if (!$response->getOk()) {
                 throw new MessageSendFailedException($secretSanta, $secretSanta->getUser($giver));
@@ -171,6 +183,8 @@ In case of trouble or if you need it for whatever reason, here is a way to retri
 - Paste the content on <%s|this page> then submit
 
 Remember, with great power comes great responsibility!
+
+The event will happen at this time : ' . date('H:i - m/d/Y', $secretSanta->getOptions()['scheduled_at']) . ' UTC
 
 Happy Secret Santa!',
             $code,

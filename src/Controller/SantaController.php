@@ -127,12 +127,16 @@ class SantaController extends AbstractController
         $selectedUsers = $session->get('selected-users', []);
         $message = $session->get('message');
         $notes = $session->get('notes');
+        $options = $session->get('options');
 
         $errors = [];
 
         if ($request->isMethod('POST')) {
             $message = trim($request->request->get('message'));
             $notes = array_map('trim', $request->request->all('notes'));
+
+            $options = [];
+            $options['scheduled_at'] = strtotime($request->request->get('scheduled_at') . ' UTC');
 
             if ($messageError = $this->validateMessage($message)) {
                 $errors['message'] = $messageError;
@@ -142,9 +146,14 @@ class SantaController extends AbstractController
                 $errors['notes'] = $notesError;
             }
 
+            if ($scheduleError = $this->validateSchedule($options['scheduled_at'])) {
+                $errors['scheduled_at'] = $scheduleError;
+            }
+
             if (!$errors) {
                 $session->set('message', $message);
                 $session->set('notes', $notes);
+                $session->set('options', $options);
 
                 $secretSanta = $this->prepareSecretSanta($rudolph, $request, $application);
 
@@ -165,6 +174,7 @@ class SantaController extends AbstractController
             'selectedUsers' => $selectedUsers,
             'message' => $message,
             'notes' => $notes,
+            'options' => $options,
             'errors' => $errors,
         ]);
 
@@ -193,12 +203,19 @@ class SantaController extends AbstractController
         $message = trim($request->request->get('message', ''));
         $notes = array_filter(array_map('trim', $request->request->all('notes')));
 
+        $options = [];
+        $options['scheduled_at'] = strtotime($request->request->get('scheduled_at') . ' UTC');
+
         if ($messageError = $this->validateMessage($message)) {
             $errors['message'] = $messageError;
         }
 
         if ($notesError = $this->validateNotes($notes)) {
             $errors['notes'] = $notesError;
+        }
+
+        if ($options['scheduled_at'] && $scheduleError = $this->validateSchedule($options['scheduled_at'])) {
+            $errors['scheduled_at'] = $scheduleError;
         }
 
         if (\count($errors) < 1) {
@@ -220,7 +237,8 @@ class SantaController extends AbstractController
                 [],
                 $application->getAdmin(),
                 str_replace('```', '', $message),
-                $notes
+                $notes,
+                $options
             );
 
             try {
@@ -374,6 +392,7 @@ class SantaController extends AbstractController
         $selectedUsers = $session->get('selected-users', []);
         $message = $session->get('message');
         $notes = $session->get('notes', []);
+        $options = $session->get('options', []);
 
         $associatedUsers = $rudolph->associateUsers($selectedUsers);
         $hash = md5(serialize($associatedUsers));
@@ -388,7 +407,8 @@ class SantaController extends AbstractController
             $associatedUsers,
             $application->getAdmin(),
             $message,
-            $notes
+            $notes,
+            $options,
         );
     }
 
@@ -414,6 +434,7 @@ class SantaController extends AbstractController
         $session->remove('selected-users');
         $session->remove('message');
         $session->remove('notes');
+        $session->remove('options');
 
         if ($application) {
             $application->reset();
@@ -446,6 +467,19 @@ class SantaController extends AbstractController
             if (\strlen(preg_replace('/\r\n/', ' ', $note)) > 400) {
                 return 'Each note should contain less than 400 characters';
             }
+        }
+
+        return null;
+    }
+
+    private function validateSchedule(int $schedule): ?string
+    {
+        if ($schedule < time()) {
+            return 'The event should not be scheduled for a past date';
+        }
+
+        if ($schedule > strtotime('+120 days')) {
+            return 'The event cannot be scheduled for over 120 days in the future';
         }
 
         return null;
