@@ -9,14 +9,9 @@
     <div class="user-field message-step">
         <h3>Want to schedule the message to a later date?</h3>
 
-        <p>If not, you can just leave this field <strong>empty</strong>.
-            <br>
-            The time you will specify here will be interpreted in <strong>UTC</strong>, please mind
-            <strong>timezones</strong> when scheduling your event.
-            <br><br>
-            Ex : If you live in GMT+2, schedule the event for 2 hours sooner than you really want it.
-        </p>
+        <p>If not, you can just leave this field <strong>empty</strong>.</p>
 
-        <input type="datetime-local" name="scheduled_at">
+        <input type="datetime-local" id="message-date">
+        <input type="hidden" id="message-date-true" name="scheduled_at">
     </div>
 {% endblock %}

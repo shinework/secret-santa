@@ -137,11 +137,14 @@ class SantaController extends AbstractController
 
             $options = [];
             $scheduled = false;
-            if ($request->request->get('scheduled_at') != "") {
-                $options['scheduled_at'] = strtotime($request->request->get('scheduled_at') . ' UTC');
-                $scheduled = true;
-            }
 
+            if ($request->request->get('scheduled_at') != "") {
+                $options['scheduled_at'] = $request->request->get('scheduled_at');
+                $scheduled = true;
+                if ($scheduleError = $this->validateSchedule($options['scheduled_at'], $scheduled)) {
+                    $errors['scheduled_at'] = $scheduleError;
+                }
+            }
 
             if ($messageError = $this->validateMessage($message)) {
                 $errors['message'] = $messageError;
@@ -149,10 +152,6 @@ class SantaController extends AbstractController
 
             if ($notesError = $this->validateNotes($notes)) {
                 $errors['notes'] = $notesError;
-            }
-
-            if ($scheduleError = $this->validateSchedule(strtotime($request->request->get('scheduled_at') . ' UTC'), $scheduled)) {
-                $errors['scheduled_at'] = $scheduleError;
             }
 
             if (!$errors) {
@@ -209,7 +208,15 @@ class SantaController extends AbstractController
         $notes = array_filter(array_map('trim', $request->request->all('notes')));
 
         $options = [];
-        $options['scheduled_at'] = strtotime($request->request->get('scheduled_at') . ' UTC');
+        $scheduled = false;
+
+        if ($request->request->get('scheduled_at') != "") {
+            $options['scheduled_at'] = $request->request->get('scheduled_at');
+            $scheduled = true;
+            if ($scheduleError = $this->validateSchedule($options['scheduled_at'], $scheduled)) {
+                $errors['scheduled_at'] = $scheduleError;
+            }
+        }
 
         if ($messageError = $this->validateMessage($message)) {
             $errors['message'] = $messageError;
@@ -219,9 +226,7 @@ class SantaController extends AbstractController
             $errors['notes'] = $notesError;
         }
 
-        if ($options['scheduled_at'] && $scheduleError = $this->validateSchedule($options['scheduled_at'], true)) {
-            $errors['scheduled_at'] = $scheduleError;
-        }
+
 
         if (\count($errors) < 1) {
             $session = $request->getSession();

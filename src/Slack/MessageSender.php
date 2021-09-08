@@ -31,7 +31,7 @@ class MessageSender
         $fallbackText = '';
         $blocks = [];
 
-        $schedule = $secretSanta->getOptions()['scheduled_at'] ?? null ;
+        $schedule = $secretSanta->getOptions()['scheduled_at'] ?? null;
 
         if ($isSample) {
             $blocks[] = [
@@ -153,7 +153,7 @@ class MessageSender
 
         try {
             if ($schedule && !$isSample) {
-                $messageParameters['post_at'] = $schedule;
+                $messageParameters['post_at'] = (int) $schedule;
                 $response = $this->clientFactory->getClientForToken($token)->chatScheduleMessage($messageParameters);
             } else {
                 $messageParameters['icon_url'] = 'https://secret-santa.team/images/logo.png';
@@ -187,7 +187,7 @@ In case of trouble or if you need it for whatever reason, here is a way to retri
 Remember, with great power comes great responsibility!' . PHP_EOL;
 
         if($scheduled) {
-            $message .= 'The messages will be sent at this time : ' . date('H:i - m/d/Y', $secretSanta->getOptions()['scheduled_at']) . ' UTC' . PHP_EOL;
+            $message .= 'The messages will be sent at this time : ' . date('H:i - m/d/Y', $secretSanta->getOptions()['scheduled_at']) . PHP_EOL;
         }
 
         $message .= 'Happy Secret Santa!';

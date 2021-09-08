@@ -183,5 +183,17 @@
             })
         }, false);
       }
+
+      let displayedDate = document.querySelector('#message-date');
+      displayedDate.addEventListener('change', function () {
+
+          let offset = new Date().getTimezoneOffset()
+
+          let realDate = new Date(displayedDate.value).getTime() + (offset * 60);
+
+          console.log(new Date(realDate))
+
+          document.querySelector('#message-date-true').value = Math.ceil(realDate / 1000);
+      })
     </script>
 {% endblock santa_content %}
