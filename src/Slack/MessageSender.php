@@ -173,7 +173,9 @@ class MessageSender
      */
     public function sendAdminMessage(SecretSanta $secretSanta, string $code, string $spoilUrl, string $token): void
     {
-        $text = sprintf(
+        $scheduled = $secretSanta->getOptions()['scheduled_at'] ?? null;
+
+        $message =
             'Dear Secret Santa *admin*,
 
 In case of trouble or if you need it for whatever reason, here is a way to retrieve the secret repartition:
@@ -182,11 +184,15 @@ In case of trouble or if you need it for whatever reason, here is a way to retri
 ```%s```
 - Paste the content on <%s|this page> then submit
 
-Remember, with great power comes great responsibility!
+Remember, with great power comes great responsibility!' . PHP_EOL;
 
-The event will happen at this time : ' . date('H:i - m/d/Y', $secretSanta->getOptions()['scheduled_at']) . ' UTC
+        if($scheduled) {
+            $message .= 'The messages will be sent at this time : ' . date('H:i - m/d/Y', $secretSanta->getOptions()['scheduled_at']) . ' UTC' . PHP_EOL;
+        }
 
-Happy Secret Santa!',
+        $message .= 'Happy Secret Santa!';
+
+            $text = sprintf($message,
             $code,
             $spoilUrl
         );
