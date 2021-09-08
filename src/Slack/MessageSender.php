@@ -31,7 +31,7 @@ class MessageSender
         $fallbackText = '';
         $blocks = [];
 
-        $schedule = $secretSanta->getOptions()['scheduled_at'] ?? null;
+        $schedule = $secretSanta->getOptions()['scheduled_at'] ?? null ;
 
         if ($isSample) {
             $blocks[] = [

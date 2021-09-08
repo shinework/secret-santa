@@ -136,7 +136,12 @@ class SantaController extends AbstractController
             $notes = array_map('trim', $request->request->all('notes'));
 
             $options = [];
-            $options['scheduled_at'] = strtotime($request->request->get('scheduled_at') . ' UTC');
+            $scheduled = false;
+            if ($request->request->get('scheduled_at') != "") {
+                $options['scheduled_at'] = strtotime($request->request->get('scheduled_at') . ' UTC');
+                $scheduled = true;
+            }
+
 
             if ($messageError = $this->validateMessage($message)) {
                 $errors['message'] = $messageError;
@@ -146,7 +151,7 @@ class SantaController extends AbstractController
                 $errors['notes'] = $notesError;
             }
 
-            if ($scheduleError = $this->validateSchedule($options['scheduled_at'])) {
+            if ($scheduleError = $this->validateSchedule(strtotime($request->request->get('scheduled_at') . ' UTC'), $scheduled)) {
                 $errors['scheduled_at'] = $scheduleError;
             }
 
@@ -214,7 +219,7 @@ class SantaController extends AbstractController
             $errors['notes'] = $notesError;
         }
 
-        if ($options['scheduled_at'] && $scheduleError = $this->validateSchedule($options['scheduled_at'])) {
+        if ($options['scheduled_at'] && $scheduleError = $this->validateSchedule($options['scheduled_at'], true)) {
             $errors['scheduled_at'] = $scheduleError;
         }
 
@@ -472,8 +477,12 @@ class SantaController extends AbstractController
         return null;
     }
 
-    private function validateSchedule(int $schedule): ?string
+    private function validateSchedule(int $schedule, bool $scheduled): ?string
     {
+        if(!$scheduled) {
+            return null;
+        }
+
         if ($schedule < time()) {
             return 'The event should not be scheduled for a past date';
         }
