@@ -191,8 +191,6 @@
 
           let realDate = new Date(displayedDate.value).getTime() + (offset * 60);
 
-          console.log(new Date(realDate))
-
           document.querySelector('#message-date-true').value = Math.ceil(realDate / 1000);
       })
     </script>
