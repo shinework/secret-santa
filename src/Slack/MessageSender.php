@@ -187,7 +187,7 @@ In case of trouble or if you need it for whatever reason, here is a way to retri
 Remember, with great power comes great responsibility!' . PHP_EOL;
 
         if($scheduled) {
-            $message .= 'The messages will be sent at this time : ' . date('H:i - m/d/Y', $secretSanta->getOptions()['scheduled_at']) . ' UTC' . PHP_EOL;
+            $message .= 'The messages will be sent at this time : ' . gmdate('H:i - m/d/Y', $secretSanta->getOptions()['scheduled_at']) . ' UTC' . PHP_EOL;
         }
 
         $message .= 'Happy Secret Santa!';
@@ -208,6 +208,7 @@ Remember, with great power comes great responsibility!' . PHP_EOL;
                 throw new MessageSendFailedException($secretSanta, $secretSanta->getAdmin());
             }
         } catch (\Throwable $t) {
+            dd($t);
             throw new MessageSendFailedException($secretSanta, $secretSanta->getAdmin(), $t);
         }
     }

@@ -187,11 +187,16 @@
       let displayedDate = document.querySelector('#message-date');
       displayedDate.addEventListener('change', function () {
 
-          let offset = new Date().getTimezoneOffset()
+          let scheduledAt = Math.ceil(new Date(displayedDate.value).getTime() / 1000);
 
-          let realDate = new Date(displayedDate.value).getTime() + (offset * 60);
+          let adminScheduledAt = new Date()
+          adminScheduledAt.setTime((scheduledAt * 1000) + ((new Date().getTimezoneOffset() * 60)*1000))
+          adminScheduledAt = Math.ceil(adminScheduledAt.getTime() / 1000)
 
-          document.querySelector('#message-date-true').value = Math.ceil(realDate / 1000);
+          document.querySelector('#message-date-true').value = [
+              scheduledAt,
+              adminScheduledAt
+          ]
       })
     </script>
 {% endblock santa_content %}

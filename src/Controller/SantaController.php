@@ -139,7 +139,10 @@ class SantaController extends AbstractController
             $scheduled = false;
 
             if ($request->request->get('scheduled_at') != "") {
-                $options['scheduled_at'] = $request->request->get('scheduled_at');
+                $schedules = explode(',', $request->request->get('scheduled_at'));
+                $options['scheduled_at'] = $schedules[0];
+                $options['scheduled_at_admin'] = $schedules[1];
+
                 $scheduled = true;
                 if ($scheduleError = $this->validateSchedule($options['scheduled_at'], $scheduled)) {
                     $errors['scheduled_at'] = $scheduleError;
