@@ -184,15 +184,15 @@ In case of trouble or if you need it for whatever reason, here is a way to retri
 ```%s```
 - Paste the content on <%s|this page> then submit
 
-Remember, with great power comes great responsibility!' . PHP_EOL;
+Remember, with great power comes great responsibility!' . \PHP_EOL;
 
-        if($scheduled) {
-            $message .= 'The messages will be sent at this time : ' . gmdate('H:i - m/d/Y', $secretSanta->getOptions()['scheduled_at']) . ' UTC' . PHP_EOL;
+        if ($scheduled) {
+            $message .= 'The messages will be sent at this time : ' . gmdate('H:i - m/d/Y', $secretSanta->getOptions()['scheduled_at']) . ' UTC' . \PHP_EOL;
         }
 
         $message .= 'Happy Secret Santa!';
 
-            $text = sprintf($message,
+        $text = sprintf($message,
             $code,
             $spoilUrl
         );

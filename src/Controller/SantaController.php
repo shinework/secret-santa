@@ -138,7 +138,7 @@ class SantaController extends AbstractController
             $options = [];
             $scheduled = false;
 
-            if ($request->request->get('scheduled_at') != "") {
+            if ('' !== $request->request->get('scheduled_at')) {
                 $schedules = explode(',', $request->request->get('scheduled_at'));
                 $options['scheduled_at'] = $schedules[0];
                 $options['scheduled_at_admin'] = $schedules[1];
@@ -213,7 +213,7 @@ class SantaController extends AbstractController
         $options = [];
         $scheduled = false;
 
-        if ($request->request->get('scheduled_at') != "") {
+        if ('' !== $request->request->get('scheduled_at')) {
             $options['scheduled_at'] = $request->request->get('scheduled_at');
             $scheduled = true;
             if ($scheduleError = $this->validateSchedule($options['scheduled_at'], $scheduled)) {
@@ -228,8 +228,6 @@ class SantaController extends AbstractController
         if ($notesError = $this->validateNotes($notes)) {
             $errors['notes'] = $notesError;
         }
-
-
 
         if (\count($errors) < 1) {
             $session = $request->getSession();
@@ -487,7 +485,7 @@ class SantaController extends AbstractController
 
     private function validateSchedule(int $schedule, bool $scheduled): ?string
     {
-        if(!$scheduled) {
+        if (!$scheduled) {
             return null;
         }
 
