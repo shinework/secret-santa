@@ -127,7 +127,7 @@ class SantaController extends AbstractController
         $selectedUsers = $session->get('selected-users', []);
         $message = $session->get('message');
         $notes = $session->get('notes');
-        $options = $session->get('options');
+        $options = $session->get('options', []);
 
         $errors = [];
 
@@ -135,13 +135,9 @@ class SantaController extends AbstractController
             $message = trim($request->request->get('message'));
             $notes = array_map('trim', $request->request->all('notes'));
 
-            $options = [];
-            $scheduled = false;
-
-            if ('' !== $request->request->get('scheduled_at')) {
+            if ($request->request->get('scheduled_at')) {
                 $schedules = explode(',', $request->request->get('scheduled_at'));
                 $options['scheduled_at'] = $schedules[0];
-                $options['scheduled_at_admin'] = $schedules[1];
 
                 $scheduled = true;
                 if ($scheduleError = $this->validateSchedule($options['scheduled_at'], $scheduled)) {

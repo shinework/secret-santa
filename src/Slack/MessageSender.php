@@ -208,7 +208,6 @@ Remember, with great power comes great responsibility!' . \PHP_EOL;
                 throw new MessageSendFailedException($secretSanta, $secretSanta->getAdmin());
             }
         } catch (\Throwable $t) {
-            dd($t);
             throw new MessageSendFailedException($secretSanta, $secretSanta->getAdmin(), $t);
         }
     }
